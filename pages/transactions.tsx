@@ -7,6 +7,9 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Container from "@mui/material/Container";
+import Avatar from "@mui/material/Avatar";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -23,7 +26,7 @@ const rows = [
 export default function BasicTable() {
   return (
     <>
-      <Container maxWidth="sm">
+      <Container maxWidth="lg">
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }} aria-label="simple table">
             <TableHead>
@@ -47,7 +50,17 @@ export default function BasicTable() {
                   <TableCell align="right">{row.calories}</TableCell>
                   <TableCell align="right">{row.fat}</TableCell>
                   <TableCell align="right">{row.carbs}</TableCell>
-                  <TableCell align="right">{row.protein}</TableCell>
+                  <TableCell align="left">
+                    <Grid container justifyContent="end" >
+                      <Grid item sx={{ mr: 2 }} >
+                        <Button variant="outlined">Outlined</Button>
+                      </Grid>
+                      <Grid item>
+                        <Avatar alt="Remy Sharp" src="https://mui.com/static/images/avatar/1.jpg" />
+                      </Grid>
+                    </Grid>
+
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
