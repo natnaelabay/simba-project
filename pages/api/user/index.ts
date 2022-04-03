@@ -16,7 +16,6 @@ export default async function handle(req, res) {
         });
         res.json(result);
     } else {
-
         const result = await prisma.user.findMany();
         res.json(result);
     }

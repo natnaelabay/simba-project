@@ -12,6 +12,11 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import { getSession } from "next-auth/client";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
 
 function Copyright(props) {
   return (
@@ -117,4 +122,27 @@ export default function SignIn() {
       </Container>
     </ThemeProvider>
   );
+}
+
+export async function getServerSideProps({ req }) {
+
+  const session = await getSession({ req });
+  const transactions = await prisma.transaction.findMany({
+    where: {
+      OR: [{
+        senderId: session.user.id as number,
+      }, {
+        senderId: session.user.id as number,
+      }]
+    }
+  })
+
+  const users = await prisma.user.findMany();
+
+  return {
+    props: {
+      transactions,
+      users,
+    }
+  }
 }

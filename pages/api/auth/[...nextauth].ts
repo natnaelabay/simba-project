@@ -13,6 +13,12 @@ const configuration = {
     jwt: true,
     maxAge: 30 * 24 * 60 * 60
   },
+  callback: {
+    session: async (session, user) => {
+      session.user = user
+      return Promise.resolve(session)
+    }
+  },
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -51,8 +57,10 @@ const configuration = {
           return null;
         }
       },
-    }),
+    },
+    ),
   ],
+
 
 };
 export default (req, res) => NextAuth(req, res, configuration);
