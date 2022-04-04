@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
 
-export default function BasicCard() {
+export default function BasicCard(props) {
 
     return (
         <Card style={{
@@ -16,13 +16,32 @@ export default function BasicCard() {
         }} sx={{ minWidth: 250, maxWidth: 250, mt: 2 }}>
             <CardContent>
                 <Typography variant="h5" component="div">
-                    Dollars ($)
+                    {
+                        props.account ?
+                            (props.account.currency === 'USD' ?
+                                `Dollar $ ${props.account.balance}` :
+                                props.account.currency === "YEN" ?
+                                    `Yen ¥ ${props.account.balance}` :
+                                    props.account.currency === "GBP" ?
+                                        `Pound £ ${props.account.balance}` :
+                                        "0")
+                            : "Currency"
+                    }
                 </Typography>
                 <Typography color="text.secondary">
                     + $25
                 </Typography>
                 <Typography variant="h4">
-                    $2000
+                    {
+                        props.account ? (props.account.currency === 'USD' ?
+                            `$ ${props.account.balance}` :
+                            props.account.currency === "YEN" ?
+                                `¥ ${props.account.balance}` :
+                                props.account.currency === "GBP" ?
+                                    `£ ${props.account.balance}` :
+                                    "0.0")
+                            : "0.0"
+                    }
                 </Typography>
             </CardContent>
         </Card>

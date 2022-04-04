@@ -12,8 +12,12 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider';
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast';
+import { getSession } from "next-auth/react";
+import { PrismaClient } from "@prisma/client";
 
-function NewTransaction(): React.ReactElement {
+const prisma = new PrismaClient();
+
+function NewTransaction(props): React.ReactElement {
 
     const [currency, setCurrency] = React.useState<string>('USD')
     const [targetCurrency, setTargetCurrency] = React.useState<string>('USD')
@@ -23,7 +27,7 @@ function NewTransaction(): React.ReactElement {
     const startTransaction = async (event) => {
         event.preventDefault()
 
-        const balance = await axios.get('/api/user/balance')
+        const balance = { data: props.account }
         if (currency === "USD" && balance.data.dollar < transferAmount) {
             toast('Insufficient Balance')
             return
@@ -98,7 +102,7 @@ function NewTransaction(): React.ReactElement {
         },
         {
             value: 'YEN',
-            label: '฿ Bitcoin',
+            label: '¥ YEN',
         },
     ];
 
@@ -218,3 +222,41 @@ function NewTransaction(): React.ReactElement {
 }
 
 export default NewTransaction;
+
+
+
+
+export async function getServerSideProps(context) {
+    prisma
+    // const session = await getSession(context);
+    // console.log("---------------------------------")
+    // console.log(session.user.email)
+    // console.log("---------------------------------")
+    // const user = await prisma.user.findFirst({
+    //     where: {
+    //         email: session.user.email
+    //     }
+    // });
+    // console.log("---------------------------------")
+    // console.log(user)
+    // console.log("---------------------------------")
+
+    // const person = await prisma.account.findUnique({
+    //     where: {
+    //         userId: user.id as number,
+    //     },
+    // });
+
+    // const account = await prisma.account.findMany({
+    //     where: {
+    //         userId: user.id as number,
+    //     },
+    // });
+
+    return {
+        props: {
+            // person,
+            // account
+        }
+    }
+}

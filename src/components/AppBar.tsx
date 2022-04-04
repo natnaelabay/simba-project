@@ -7,6 +7,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
 import Avatar from '@mui/material/Avatar';
+import { signOut } from "next-auth/react"
 
 export default function CustomAppBar() {
     return (
@@ -28,7 +29,15 @@ export default function CustomAppBar() {
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         FineTech
                     </Typography>
-                    <Avatar alt="Remy Sharp" src="https://mui.com/static/images/avatar/1.jpg" />
+                    <Typography
+                        variant="h6"
+                        onClick={async (e) => {
+                            const data = await signOut()
+                            console.log(data)
+                        }}
+                        component="button">
+                        Logout
+                    </Typography>
                 </Toolbar>
             </AppBar>
         </Box>

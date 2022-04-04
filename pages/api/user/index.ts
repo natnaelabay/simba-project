@@ -6,7 +6,8 @@ export default async function handle(req, res) {
     const { name, email, password } = req.body;
 
     if (req.method === 'POST') {
-        let updated = await bcrypt.hash(password, 10);
+        const salt = await bcrypt.genSalt();
+        let updated = await bcrypt.hash(password, salt);
         const result = await prisma.user.create({
             data: {
                 name: name,
@@ -14,6 +15,16 @@ export default async function handle(req, res) {
                 password: updated,
             },
         });
+
+        const account = await prisma.account.create({
+            data: {
+                userId: result.id,
+                dollar: 100,
+                pound: 0,
+                yen: 0,
+            }
+        });
+        
         res.json(result);
     } else {
         const result = await prisma.user.findMany();
