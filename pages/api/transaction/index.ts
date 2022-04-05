@@ -7,6 +7,7 @@ export default async function handle(req, res) {
         amount,
         receiverId,
         // currency,
+        pure,
         rate } = req.body;
 
     if (req.method === 'POST') {
@@ -48,64 +49,64 @@ export default async function handle(req, res) {
             });
         }
 
-        if (body.currency === 'USD') {
-            prisma.account.update({
-                where: {
-                    userId: session.id as number,
-                },
-                data: {
-                    dollar: Math.abs(account.dollar - body.amount),
-                },
-            });
+        // if (body.currency === 'USD') {
+        //     prisma.account.update({
+        //         where: {
+        //             userId: session.id as number,
+        //         },
+        //         data: {
+        //             dollar: Math.abs(account.dollar - body.amount),
+        //         },
+        //     });
 
-            prisma.account.update({
-                where: {
-                    userId: body.receiver
-                },
-                data: {
-                    dollar: body.converted + to.dollar
-                }
-            });
+        //     prisma.account.update({
+        //         where: {
+        //             userId: body.receiver
+        //         },
+        //         data: {
+        //             dollar: body.converted + to.dollar
+        //         }
+        //     });
 
-        } else if (body.currency === 'GBP') {
-            prisma.account.update({
-                where: {
-                    userId: u.id,
-                },
-                data: {
-                    pound: Math.abs(account.pound - body.amount),
-                },
-            });
-            prisma.account.update({
-                where: {
-                    userId: body.receiver
-                },
-                data: {
-                    pound: body.converted + to.pound
-                }
-            });
+        // } else if (body.currency === 'GBP') {
+        //     prisma.account.update({
+        //         where: {
+        //             userId: u.id,
+        //         },
+        //         data: {
+        //             pound: Math.abs(account.pound - body.amount),
+        //         },
+        //     });
+        //     prisma.account.update({
+        //         where: {
+        //             userId: body.receiver
+        //         },
+        //         data: {
+        //             pound: body.converted + to.pound
+        //         }
+        //     });
 
-        } else if (body.currency === 'JPY') {
+        // } else if (body.currency === 'JPY') {
             
-            prisma.account.update({
-                where: {
-                    userId: session.id as number,
-                },
-                data: {
-                    yen: Math.abs(account.yen - body.amount),
-                },
-            });
+        //     prisma.account.update({
+        //         where: {
+        //             userId: session.id as number,
+        //         },
+        //         data: {
+        //             yen: Math.abs(account.yen - body.amount),
+        //         },
+        //     });
 
-            prisma.account.update({
-                where: {
-                    userId: body.receiver as number
-                },
-                data: {
-                    yen: body.converted + to.yen
-                }
-            });
+        //     prisma.account.update({
+        //         where: {
+        //             userId: body.receiver as number
+        //         },
+        //         data: {
+        //             yen: body.converted + to.yen
+        //         }
+        //     });
 
-        }
+        // }
 
         await prisma.account.update({
             where: {
@@ -127,7 +128,7 @@ export default async function handle(req, res) {
             },
             data: {
                 [body.currency == "USD" ? "dollar" :
-                    body.currency == "GBP" ? "pound" : "yen"]: Math.abs(parseInt(body.converted) - account[
+                    body.currency == "GBP" ? "pound" : "yen"]: Math.abs(parseInt(body.pure) - account[
                     body.currency == "USD" ? "dollar" :
                         body.currency == "GBP" ? "pound" : "yen"
                     ])
@@ -142,6 +143,7 @@ export default async function handle(req, res) {
                 receiverId: body.receiver as number,
                 currency: body.targetCurrency,
                 rate: rate,
+                sourceCurrency: body.currency,
             },
         });
 

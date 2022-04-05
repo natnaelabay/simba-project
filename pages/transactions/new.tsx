@@ -101,7 +101,8 @@ function NewTransaction(props): React.ReactElement {
             converted: amount,
             receiver: receiver,
             amount: transferAmount,
-            rate: getRate(targetCurrency)
+            rate: getRate(targetCurrency),
+            pure: transfer
 
         }).then(res => {
             if (res.status === 200) {
