@@ -114,7 +114,7 @@ export default function BasicTable(props) {
                                     </TableCell>
                                     <TableCell align="left">{row.rate}</TableCell>
                                     <TableCell align="left">{row.currency}</TableCell>
-                                    <TableCell align="left">{row.currency}</TableCell>
+                                    <TableCell align="left">{row.sourceCurrency}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
