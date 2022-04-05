@@ -14,20 +14,31 @@ import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast';
 import { getSession } from "next-auth/react";
 import prisma from '../../lib/prisma';
-import {useRouter} from 'next/router'
+import { useRouter } from 'next/router'
+import { useSession } from "next-auth/react"
 
 function NewTransaction(props): React.ReactElement {
     const router = useRouter()
+    const { data: session, status } = useSession()
+    console.log(props)
+    React.useEffect(() => {
+        if (props.myUser != undefined) {
+            return
+        } else {
+            router.push("/signIn")
+        }
+        // console.log(props.session)
+    })
 
-    const users = props.persons.filter(e => e.id != 10)
+    const users = props.persons.filter(e => e.email != (props.myUser && props.myUser.email))
     const [currency, setCurrency] = React.useState<string>('USD')
     const [targetCurrency, setTargetCurrency] = React.useState<string>('USD')
     const [transferAmount, setTransferAmount] = React.useState<number>(1.0)
-    const [receiver, setReceiver] = React.useState(users[0].id)
+    const [receiver, setReceiver] = React.useState(users.length != 0 && users[0].id)
     const [accounts, setAccounts] = React.useState(users)
 
     const [converted, setConverted] = React.useState("0.0")
-    const [name, setName] = React.useState(users[0].name)
+    const [name, setName] = React.useState(users.length != 0 && users[0].name)
 
     const startTransaction = async (event) => {
         event.preventDefault()
@@ -253,40 +264,51 @@ export default NewTransaction;
 
 export async function getServerSideProps(context) {
     const session = await getSession(context);
-    const user = await prisma.user.findFirst({
-        where: {
-            email: session.user.email
-        },
-        select: {
-            id: true
-        }
-    })
-    const account = await prisma.account.findUnique({
-        where: {
-            userId: user.id,
-        },
-        select: {
-            userId: true,
-            yen: true,
-            pound: true,
-            dollar: true
-        }
-    });
+    if (session) {
+        const user = await prisma.user.findFirst({
+            where: {
+                email: session.user.email
+            },
+            select: {
+                id: true
+            }
+        })
+        const account = await prisma.account.findUnique({
+            where: {
+                userId: user.id,
+            },
+            select: {
+                userId: true,
+                yen: true,
+                pound: true,
+                dollar: true
+            }
+        });
 
-    const persons = await prisma.user.findMany({
-        select: {
-            name: true,
-            email: true,
-            id: true,
-        }
-    });
+        const persons = await prisma.user.findMany({
+            select: {
+                name: true,
+                email: true,
+                id: true,
+            }
+        });
 
-    return {
-        props: {
-            // person,
-            persons,
-            // ,
-            account
+        return {
+            props: {
+                // person,
+                persons,
+                // ,
+                account,
+                myUser: session.user
+            }
+        }
+    } else {
+        return {
+            props: {
+                persons: [],
+                account: {},
+                myUser: null
+            }
         }
     }
 }

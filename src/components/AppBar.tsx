@@ -33,8 +33,10 @@ export default function CustomAppBar() {
                     <Typography
                         variant="h6"
                         onClick={async (e) => {
-                            const data = await signOut()
-                            router.push("/")
+                            const data = await signOut({
+                                callbackUrl: `${window.location.origin}/signIn`
+                            })
+                            router.push("/signIn")
                         }}
                         component="button">
                         Logout

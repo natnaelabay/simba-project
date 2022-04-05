@@ -54,7 +54,7 @@ export default async function handle(req, res) {
                     userId: session.id as number,
                 },
                 data: {
-                    dollar: account.dollar - body.amount,
+                    dollar: Math.abs(account.dollar - body.amount),
                 },
             });
 

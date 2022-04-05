@@ -14,7 +14,7 @@ import axios from "axios";
 import { useState } from "react";
 import { useRouter } from 'next/router'
 import toast, { Toaster } from 'react-hot-toast';
-
+import { useSession } from "next-auth/react"
 
 const theme = createTheme();
 
@@ -24,6 +24,13 @@ export default function SignUp() {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const { data: session, status } = useSession()
+
+  React.useEffect(() =>{
+    if (status === "authenticated") {
+      router.push("/transactions")
+    } 
+  },[])
 
   const register = (event) => {
     event.preventDefault();
@@ -42,12 +49,6 @@ export default function SignUp() {
       toast("Something Went wrong. try refreshing the page")
     });
   }
-
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-  };
 
   return (
     <ThemeProvider theme={theme}>
