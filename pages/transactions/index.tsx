@@ -25,16 +25,16 @@ export default function BasicTable(props) {
 
     const { data: session, status } = useSession()
     const router = useRouter()
-    const [account, setAccount] = React.useState({})
-
+    const [account, setAccount] = React.useState(props.account)
+    console.log(props)
     React.useEffect(() => {
         if (props.myUser) {
             // authenticated
-            axios.get("/api/user/account/" + 10)
-                .then(res => {
-                    setAccount(res.data)
-                }).catch(err => {
-                })
+            // axios.get("/api/user/account/" + 10)
+            //     .then(res => {
+            //         setAccount(res.data)
+            //     }).catch(err => {
+            //     })
         } else {
             router.push("/signIn")
             return
@@ -87,7 +87,9 @@ export default function BasicTable(props) {
                                 <TableCell align="left">From</TableCell>
                                 <TableCell align="left">To</TableCell>
                                 <TableCell align="left">Value</TableCell>
-                                <TableCell align="left">Currency</TableCell>
+                                <TableCell align="left">Rate</TableCell>
+                                <TableCell align="left">Target Currency</TableCell>
+                                <TableCell align="left">Source Currency</TableCell>
                                 {/* <TableCell align="left">Created At</TableCell>
                                     <TableCell align="left">Updated At</TableCell> */}
                             </TableRow>
@@ -110,6 +112,8 @@ export default function BasicTable(props) {
                                     <TableCell style={row.sender.id == props.user.id ? { color: "red" } : {}} align="left">
                                         {row.sender.id == props.user.id ? `-${row.amount}` : `+${row.amount}`}
                                     </TableCell>
+                                    <TableCell align="left">{row.rate}</TableCell>
+                                    <TableCell align="left">{row.currency}</TableCell>
                                     <TableCell align="left">{row.currency}</TableCell>
                                 </TableRow>
                             ))}
@@ -143,6 +147,13 @@ export async function getServerSideProps({ req, res }) {
         const account = await prisma.account.findUnique({
             where: {
                 userId: user.id
+            },
+            select: {
+                id: true,
+                userId: true,
+                dollar: true,
+                pound: true,
+                yen: true,
             }
         })
 
@@ -161,6 +172,7 @@ export async function getServerSideProps({ req, res }) {
                 receiverId: true,
                 currency: true,
                 rate: true,
+                sourceCurrency : true
                 // createdAt: true,
             }
         })
@@ -181,7 +193,7 @@ export async function getServerSideProps({ req, res }) {
                     id: user.id
                 },
                 transactions: updated.reverse(),
-                account: {},
+                account: account,
                 myUser: session.user
             }
         }

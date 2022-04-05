@@ -25,6 +25,7 @@ model Transaction {
   senderId   Int     
   receiverId Int    
   currency   String
+  sourceCurrency String
   rate       Float
   createdAt  DateTime @default(now()) @map(name: "created_at")
   updatedAt  DateTime @updatedAt @map(name: "updated_at")
