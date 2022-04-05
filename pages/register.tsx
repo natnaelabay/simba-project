@@ -3,8 +3,6 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import Link from "@mui/material/Link";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -12,41 +10,51 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
-function Copyright(props) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+import axios from "axios";
+import { useState } from "react";
+import { useRouter } from 'next/router'
+import toast, { Toaster } from 'react-hot-toast';
+import { useSession } from "next-auth/react"
 
 const theme = createTheme();
 
 export default function SignUp() {
-  const handleSubmit = (event) => {
+  const router = useRouter()
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const { data: session, status } = useSession()
+
+  React.useEffect(() =>{
+    if (status === "authenticated") {
+      router.push("/transactions")
+    } 
+  },[])
+
+  const register = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
+    axios.post(`/api/user`, {
+      name: firstName + " " + lastName,
+      password: password,
+      email: email,
+    }
+    ).then(res => {
+      if (res.status === 200) {
+        router.push('/signIn')
+      } else {
+        toast("Something Went wrong. try refreshing the page")
+      }
+    }).catch(err => {
+      toast("Something Went wrong. try refreshing the page")
     });
-  };
+  }
 
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
+        <Toaster />
         <Box
           sx={{
             marginTop: 8,
@@ -64,7 +72,7 @@ export default function SignUp() {
           <Box
             component="form"
             noValidate
-            onSubmit={handleSubmit}
+            onSubmit={register}
             sx={{ mt: 3 }}
           >
             <Grid container spacing={2}>
@@ -72,6 +80,8 @@ export default function SignUp() {
                 <TextField
                   autoComplete="given-name"
                   name="firstName"
+                  value={firstName}
+                  onChange={(event) => setFirstName(event.target.value)}
                   required
                   fullWidth
                   id="firstName"
@@ -81,6 +91,8 @@ export default function SignUp() {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
+                  value={lastName}
+                  onChange={(event) => setLastName(event.target.value)}
                   required
                   fullWidth
                   id="lastName"
@@ -93,8 +105,12 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   id="email"
                   label="Email Address"
+                  type={"email"}
+
                   name="email"
                   autoComplete="email"
                 />
@@ -103,6 +119,8 @@ export default function SignUp() {
                 <TextField
                   required
                   fullWidth
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                   name="password"
                   label="Password"
                   type="password"
@@ -128,7 +146,6 @@ export default function SignUp() {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 5 }} />
       </Container>
     </ThemeProvider>
   );
