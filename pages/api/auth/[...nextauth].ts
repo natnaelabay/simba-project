@@ -69,7 +69,6 @@ const configuration = {
             email: credentials.email,
           },
         });
-        console.log(credentials)
         if (user !== null) {
           const isMatch = await bcrypt.compare(
             credentials.password,
@@ -77,12 +76,6 @@ const configuration = {
           );
 
           if (isMatch) {
-            console.log({
-              name: user.name,
-              email: user.email,
-              ...user
-            });
-
             return {
               name: user.name,
               email: user.email,

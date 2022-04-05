@@ -21,9 +21,9 @@ model User {
 
 model Transaction {
   id         Int      @id @default(autoincrement())
-  amount     Int
-  senderId   Int      @unique
-  receiverId Int      @unique
+  amount     Float
+  senderId   Int     
+  receiverId Int    
   currency   String
   rate       Float
   createdAt  DateTime @default(now()) @map(name: "created_at")

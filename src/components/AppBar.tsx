@@ -8,8 +8,10 @@ import IconButton from '@mui/material/IconButton';
 import CurrencyBitcoinIcon from '@mui/icons-material/CurrencyBitcoin';
 import Avatar from '@mui/material/Avatar';
 import { signOut } from "next-auth/react"
+import { useRouter } from 'next/router';
 
 export default function CustomAppBar() {
+    const router = useRouter()
     return (
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
@@ -21,7 +23,6 @@ export default function CustomAppBar() {
                         aria-label="menu"
                         sx={{ mr: 2 }}
                         onClick={() => {
-                            console.log("you you clicked me in here")
                         }}
                     >
                         <CurrencyBitcoinIcon />
@@ -33,7 +34,7 @@ export default function CustomAppBar() {
                         variant="h6"
                         onClick={async (e) => {
                             const data = await signOut()
-                            console.log(data)
+                            router.push("/")
                         }}
                         component="button">
                         Logout

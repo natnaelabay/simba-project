@@ -25,7 +25,6 @@ export default function SignIn({ providers, csrfToken }) {
     const [password, setPassword] = React.useState('');
     const submit = async (event) => {
         event.preventDefault();
-        console.log("submited")
         const data = await signIn("credentials", {
             callbackUrl: `${window.location.origin}/transactions`,
             redirect: false,

@@ -13,28 +13,39 @@ import Divider from '@mui/material/Divider';
 import axios from 'axios'
 import toast, { Toaster } from 'react-hot-toast';
 import { getSession } from "next-auth/react";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from '../../lib/prisma';
+import {useRouter} from 'next/router'
 
 function NewTransaction(props): React.ReactElement {
+    const router = useRouter()
 
+    const users = props.persons.filter(e => e.id != 10)
     const [currency, setCurrency] = React.useState<string>('USD')
     const [targetCurrency, setTargetCurrency] = React.useState<string>('USD')
-    const [transferAmount, setTransferAmount] = React.useState<number>(0.0)
-    const [receiver, setReceiver] = React.useState('USD')
+    const [transferAmount, setTransferAmount] = React.useState<number>(1.0)
+    const [receiver, setReceiver] = React.useState(users[0].id)
+    const [accounts, setAccounts] = React.useState(users)
+
+    const [converted, setConverted] = React.useState("0.0")
+    const [name, setName] = React.useState(users[0].name)
 
     const startTransaction = async (event) => {
         event.preventDefault()
-
         const balance = { data: props.account }
-        if (currency === "USD" && balance.data.dollar < transferAmount) {
+        const transfer = transferAmount
+
+        if (transferAmount <= 0) {
+            toast("Invalid Input")
+            return
+        }
+
+        if (currency === "USD" && balance.data.dollar < transfer) {
             toast('Insufficient Balance')
             return
-        } else if (currency === "GBP" && balance.data.pound < transferAmount) {
+        } else if (currency === "GBP" && balance.data.pound < transfer) {
             toast('Insufficient Balance')
             return
-        } else if (currency === "YEN" && balance.data.yen < transferAmount) {
+        } else if (currency === "JPY" && balance.data.yen < transfer) {
             toast('Insufficient Balance')
             return
         }
@@ -42,9 +53,9 @@ function NewTransaction(props): React.ReactElement {
         let getRate = (targetCurrency): number => {
             if (targetCurrency == "USD") {
                 if (currency == "GBP") {
-                    return 0.5
-                } else if (currency == "YEN") {
-                    return 120
+                    return 1.31
+                } else if (currency == "JPY") {
+                    return 0.0081
                 } else {
                     return 1
                 }
@@ -52,39 +63,41 @@ function NewTransaction(props): React.ReactElement {
 
             if (targetCurrency == "GBP") {
                 if (currency == "USD") {
-                    return 2
-                } else if (currency == "YEN") {
-                    return 600
+                    return 0.76
+                } else if (currency == "JPY") {
+                    return 0.0062
                 } else {
                     return 1
                 }
             }
 
-            if (targetCurrency == "YEN") {
+            if (targetCurrency == "JPY") {
                 if (currency == "USD") {
-                    return 0.0081
+                    return 122.82
                 } else if (currency == "GBP") {
-                    return 0.0011
+                    return 161.40
                 } else {
                     return 1
                 }
             }
         }
 
-        const amount = getRate(targetCurrency) * transferAmount
+        const amount = getRate(targetCurrency) * transfer
 
         axios.post('/api/transaction', {
             currency: currency,
             targetCurrency: targetCurrency,
-            transferAmount: transferAmount,
+            converted: amount,
             receiver: receiver,
-            amount: amount
+            amount: transferAmount,
+            rate: getRate(targetCurrency)
 
         }).then(res => {
             if (res.status === 200) {
                 toast('Transaction Successful')
+                router.push("/transactions")
             } else {
-                toast('Something went wrong')
+                toast('Something went wrong, try refreshing the page')
             }
         }).catch(err => {
             toast('Something went wrong')
@@ -97,12 +110,12 @@ function NewTransaction(props): React.ReactElement {
             label: '$ Dollar',
         },
         {
-            value: 'EUR',
-            label: '€ Euro',
+            value: 'GBP',
+            label: '£ Pound',
         },
         {
-            value: 'YEN',
-            label: '¥ YEN',
+            value: 'JPY',
+            label: '¥ JPY',
         },
     ];
 
@@ -126,6 +139,7 @@ function NewTransaction(props): React.ReactElement {
                                         <TextField
                                             id="outlined-select-currency"
                                             select
+                                            required
                                             label="Source Currency"
                                             value={currency}
                                             fullWidth
@@ -144,6 +158,7 @@ function NewTransaction(props): React.ReactElement {
                                         <TextField
                                             id="outlined-select-currency"
                                             select
+                                            required
                                             label="Target Currency"
                                             value={targetCurrency}
                                             fullWidth
@@ -167,9 +182,11 @@ function NewTransaction(props): React.ReactElement {
                                             value={transferAmount}
                                             onChange={(event) => {
                                                 setTransferAmount(Number(event.target.value))
+                                                setConverted(event.target.value)
                                             }}
                                             id="outlined-basic"
                                             label="Transfer amount"
+                                            InputProps={{ inputProps: { min: 1.0 } }}
                                             variant="outlined"
                                         />
                                     </Grid>
@@ -180,16 +197,18 @@ function NewTransaction(props): React.ReactElement {
                                         <TextField
                                             id="outlined-select-currency"
                                             select
+                                            required
                                             label="Receiver"
                                             value={receiver}
                                             onChange={(event) => {
                                                 setReceiver(event.target.value)
+                                                setName(accounts.filter(a => a.id == a.id)[0].name)
                                             }}
                                             fullWidth
                                         >
-                                            {currencies.map((option) => (
-                                                <MenuItem key={option.value} value={option.value}>
-                                                    {option.label}
+                                            {accounts.map((option) => (
+                                                <MenuItem key={option.id} value={option.id}>
+                                                    {option.name}
                                                 </MenuItem>
                                             ))}
                                         </TextField>
@@ -209,9 +228,14 @@ function NewTransaction(props): React.ReactElement {
                                 <Typography sx={{ mb: 1 }} variant="h4" gutterBottom>Transaction Detail</Typography>
                                 <Divider />
                                 <div style={{ marginBottom: "1rem" }}></div>
-                                <Typography sx={{}} variant="subtitle2" component="p" gutterBottom>To: Michael Belete</Typography> <br />
-                                <Typography sx={{}} variant="subtitle2" gutterBottom>Amount: 500 ETB</Typography> <br />
-                                <Typography sx={{}} variant="subtitle2" gutterBottom>Date: April 20, 2022</Typography>
+                                <Typography sx={{}} variant="subtitle2" component="p" gutterBottom>To:
+                                    {name}
+                                </Typography> <br />
+                                <Typography sx={{}} variant="subtitle2"
+                                    gutterBottom>
+                                    Amount:
+                                    {converted}
+                                </Typography>
                             </Grid>
                         </Grid>
                     </Box>
@@ -219,6 +243,7 @@ function NewTransaction(props): React.ReactElement {
             </Card>
         </Container >
     );
+
 }
 
 export default NewTransaction;
@@ -227,36 +252,41 @@ export default NewTransaction;
 
 
 export async function getServerSideProps(context) {
-    prisma
-    // const session = await getSession(context);
-    // console.log("---------------------------------")
-    // console.log(session.user.email)
-    // console.log("---------------------------------")
-    // const user = await prisma.user.findFirst({
-    //     where: {
-    //         email: session.user.email
-    //     }
-    // });
-    // console.log("---------------------------------")
-    // console.log(user)
-    // console.log("---------------------------------")
+    const session = await getSession(context);
+    const user = await prisma.user.findFirst({
+        where: {
+            email: session.user.email
+        },
+        select: {
+            id: true
+        }
+    })
+    const account = await prisma.account.findUnique({
+        where: {
+            userId: user.id,
+        },
+        select: {
+            userId: true,
+            yen: true,
+            pound: true,
+            dollar: true
+        }
+    });
 
-    // const person = await prisma.account.findUnique({
-    //     where: {
-    //         userId: user.id as number,
-    //     },
-    // });
-
-    // const account = await prisma.account.findMany({
-    //     where: {
-    //         userId: user.id as number,
-    //     },
-    // });
+    const persons = await prisma.user.findMany({
+        select: {
+            name: true,
+            email: true,
+            id: true,
+        }
+    });
 
     return {
         props: {
             // person,
-            // account
+            persons,
+            // ,
+            account
         }
     }
 }

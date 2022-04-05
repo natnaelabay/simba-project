@@ -34,7 +34,7 @@ export default function SignUp() {
     }
     ).then(res => {
       if (res.status === 200) {
-        router.push('/login')
+        router.push('/signIn')
       } else {
         toast("Something Went wrong. try refreshing the page")
       }
@@ -47,10 +47,6 @@ export default function SignUp() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
   };
 
   return (

@@ -6,6 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { red } from '@mui/material/colors';
+import axios from 'axios';
 
 export default function BasicCard(props) {
 
@@ -19,26 +20,23 @@ export default function BasicCard(props) {
                     {
                         props.account ?
                             (props.account.currency === 'USD' ?
-                                `Dollar $ ${props.account.balance}` :
+                                `Dollar $ ` :
                                 props.account.currency === "YEN" ?
-                                    `Yen ¥ ${props.account.balance}` :
+                                    `JPY ¥ ` :
                                     props.account.currency === "GBP" ?
-                                        `Pound £ ${props.account.balance}` :
-                                        "0")
+                                        `Pound £ ` :
+                                        "")
                             : "Currency"
                     }
-                </Typography>
-                <Typography color="text.secondary">
-                    + $25
                 </Typography>
                 <Typography variant="h4">
                     {
                         props.account ? (props.account.currency === 'USD' ?
-                            `$ ${props.account.balance}` :
+                            `$ ${props.account.dollar}` :
                             props.account.currency === "YEN" ?
-                                `¥ ${props.account.balance}` :
+                                `¥ ${props.account.yen}` :
                                 props.account.currency === "GBP" ?
-                                    `£ ${props.account.balance}` :
+                                    `£ ${props.account.pound}` :
                                     "0.0")
                             : "0.0"
                     }

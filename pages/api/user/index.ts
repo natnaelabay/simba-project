@@ -19,12 +19,12 @@ export default async function handle(req, res) {
         const account = await prisma.account.create({
             data: {
                 userId: result.id,
-                dollar: 100,
+                dollar: 1000.0,
                 pound: 0,
                 yen: 0,
             }
         });
-        
+
         res.json(result);
     } else {
         const result = await prisma.user.findMany();
